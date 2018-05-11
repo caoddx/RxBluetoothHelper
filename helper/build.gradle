@@ -2,8 +2,6 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.github.dcendents.android-maven'
 
-group = 'com.github.caoddx'
-
 android {
     compileSdkVersion 27
 
@@ -40,7 +38,7 @@ dependencies {
 
 }
 
-task packageSources(type: Jar, dependsOn: 'classes') {
+task packageSources(type: Jar) {
     from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
 }
