@@ -3,8 +3,8 @@ package com.github.caoddx.rxbluetoothhelper.experimental
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
-import com.github.caoddx.rxbluetoothhelper.experimental.ConnectionStatus.*
 import com.github.caoddx.rxbluetoothhelper.RxInputStream
+import com.github.caoddx.rxbluetoothhelper.experimental.ConnectionStatus.*
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -163,17 +163,17 @@ class Connection(val tag: String) {
      * 根据时间间隔对数据进行分包，连续的数据视为一包，时间超过100ms即视为分包。
      * 此方法会发射包数据，直到取消订阅。
      */
-    fun receiveFrames(): Observable<List<Byte>> {
-        return receive().buffer(receive().debounce(100, TimeUnit.MILLISECONDS))
+    fun receiveFrames(byteTimeoutInMilliseconds: Long = 100): Observable<List<Byte>> {
+        return receive().buffer(receive().debounce(byteTimeoutInMilliseconds, TimeUnit.MILLISECONDS))
         //.doOnNext { Timber.i("receive data: (len = %d)[%s]", it.size, it.toHexString()) }
     }
 
     /**
      * 在 frameTimeout 和 unit 指定的超时时间内，发射一包数据。空list代表超时
      */
-    fun receiveFrame(frameTimeout: Long, unit: TimeUnit): Single<List<Byte>> {
-        return receiveFrames()
-                .timeout(frameTimeout, unit, Observable.just(emptyList())) // 超时发送一个空包，空包即代表“超时”
+    fun receiveFrame(byteTimeoutInMilliseconds: Long = 100, frameTimeoutInMilliseconds: Long): Single<List<Byte>> {
+        return receiveFrames(byteTimeoutInMilliseconds)
+                .timeout(frameTimeoutInMilliseconds, TimeUnit.MILLISECONDS, Observable.just(emptyList())) // 超时发送一个空包，空包即代表“超时”
                 .take(1).singleOrError()
     }
 
